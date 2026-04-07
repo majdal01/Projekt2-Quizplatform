@@ -12,6 +12,11 @@ const PORT = process.env.PORT || 3000;
 const isProduction = process.env.NODE_ENV === "production";
 const frontendOrigin = process.env.FRONTEND_ORIGIN || "http://localhost:5173";
 
+if (!process.env.REDIS_URL) {
+    console.error("REDIS_URL mangler i .env. Stopper server af sikkerhedshensyn.");
+    process.exit(1);
+}
+
 if (!process.env.SESSION_SECRET) {
     console.error("SESSION_SECRET mangler i .env. Stopper server af sikkerhedshensyn.");
     process.exit(1);
