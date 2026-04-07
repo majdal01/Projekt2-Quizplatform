@@ -97,7 +97,7 @@ router.post("/logout", (req, res) => {
         if (err) {
             return res.status(500).json({ message: "Kunne ikke logge ud" });
         }
-        res.clearCookie('connect.sid');
+        res.clearCookie('quiz.sid');
         res.status(200).json({ message: "Logout successful" });
     });
 });
