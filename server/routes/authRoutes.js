@@ -1,18 +1,17 @@
-const { hashPassword, comparePassword, isStrongPassword } = require('../utils/authUtils.js');
+const { hashPassword, comparePassword, isStrongPassword } = require('../utils/crypto.js');
 
 const express = require('express');
 const router = express.Router();
 const { readUsers, saveUsers } = require('../utils/fileHandler.js');
 
 router.post("/register", async (req,res)=>{
-    //læs username og password, role fra request body
     const { username, password} = req.body;
+    const role = "user";
 
-    //valideér input (tjek om username og password findes, om roller er user eller admin - default er user - om password er stærkt nok)
     if(!username || !password || !role){
         return res.status(400).json({ message: "Udfyld alle felter" });
     }
-    if(role !== "user" && role !== "admin"){
+    if(role !== "user" && role){
         return res.status(400).json({ message: "Ugyldig rolle" });
     }
     if(!isStrongPassword(password)){
