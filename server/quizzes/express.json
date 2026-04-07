@@ -30,7 +30,7 @@
             "id": 3,
             "type": "cloze-text",
             "question": "Hvad returnerer kaldet express()?",
-            "correctAnswers": ["app"]
+            "correctAnswers": ["app", "app object", "application"]
         },
         {
             "id": 4,
@@ -55,6 +55,60 @@
                 "URL-parametre"
             ],
             "correctAnswers": [0,1,3]
+        },
+        {
+            "id": 6,
+            "type": "mc-single",
+            "question": "Hvad står parameteren res for i en route-handlerfunktion i Express?",
+            "options": [
+                "Resource-objektet",
+                "Result-objektet",
+                "Response-objektet, som bruges til at sende svar tilbage til klienten",
+                "Request-objektet"
+            ],
+            "correctAnswers": [2]
+        },
+        {
+            "id": 7,
+            "type": "cloze-text",
+            "question": "Hvilken metode bruger man til at starte en Express-server?",
+            "correctAnswers": ["listen", "app.listen"]
+        },
+        {
+            "id": 8,
+            "type": "mc-multi",
+            "question": "Hvad kan middleware bruges til i Express?",
+            "options": [
+                "Logging af requests",
+                "Parsing af JSON",
+                "Autentifikation",
+                "Installering af npm-pakker"
+            ],
+            "correctAnswers":[0,1,2]
+        },
+        {
+            "id": 9,
+            "type": "mc-single",
+            "question": "Hvilken indbygget middleware bruger man til at parse JSON-body?",
+            "options":[
+                "express.urlencoded()",
+                "express.raw()",
+                "express.json()",
+                "express.static()"
+            ],
+            "correctAnswers":[2]
+        },
+        {
+            "id": 10,
+            "type": "mc-multi",
+            "question": "Hvad kan der ske, hvis ingen routes matcher en request?",
+            "options":[
+                "Klienten får et 404-svar",
+                "Requesten bliver hængende uden svar",
+                "En fallback route kan håndtere requesten",
+                "Serveren stopper automatisk"
+            ],
+            "correctAnswers":[0,2]
         }
     ]
 }
