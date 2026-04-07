@@ -1,0 +1,60 @@
+{
+    "id": "express",
+    "title": "Express Quiz",
+    "questions": [
+        {
+            "id": 1,
+            "type": "mc-single",
+            "question": "Hvad er Express i Node.js-sammenhæng?",
+            "options": [
+                "Et webframework til at bygge HTTP-servers",
+                "Et database-system til lagring af data",
+                "Et kommandolinje-værktøj til Git",
+                "Et styresystem til servere"
+            ],
+            "correctAnswers": [0]
+        },
+        {
+            "id": 2,
+            "type": "mc-multi",
+            "question": "Hvilke af følgende kan bruges til at importere Express i et Node.js-projekt?",
+            "options": [
+                "import express from 'express'",
+                "require('express')",
+                "include('express')",
+                "load('express')"
+            ],
+            "correctAnswers": [0,1]
+        },
+        {
+            "id": 3,
+            "type": "cloze-text",
+            "question": "Hvad returnerer kaldet express()?",
+            "correctAnswers": ["app"]
+        },
+        {
+            "id": 4,
+            "type": "mc-single",
+            "question": "Hvilken metode på app-objektet bruger man til at definere en GET-route?",
+            "options": [
+                "app.route()",
+                "app.fetch()",
+                "app.get()",
+                "app.send()"
+            ],
+            "correctAnswers": [2]
+        },
+        {
+            "id": 5,
+            "type": "mc-multi",
+            "question": "Hvad indeholder req-objektet i Express?",
+            "options": [
+                "Data om HTTP-requestet",
+                "Headers fra klienten",
+                "Serverens database",
+                "URL-parametre"
+            ],
+            "correctAnswers": [0,1,3]
+        }
+    ]
+}
