@@ -1,16 +1,21 @@
 const authRoutes = require('./routes/authRoutes');
-
 const express = require('express');
 const cors = require('cors');
 const session = require('express-session');
 require('dotenv').config();
 const { createClient } = require("redis");
 const { RedisStore } = require("connect-redis");
-
 const app = express();
 const PORT = process.env.PORT || 3000;
 const isProduction = process.env.NODE_ENV === "production";
 const frontendOrigin = process.env.FRONTEND_ORIGIN || "http://localhost:5173";
+const rateLimit = require("express-rate-limit");
+const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 5,
+    message: "For mange forespørgsler, prøv igen senere."
+});
+app.use(limiter);
 
 if (!process.env.REDIS_URL) {
     console.error("REDIS_URL mangler i .env. Stopper server af sikkerhedshensyn.");
