@@ -1,0 +1,24 @@
+# Dependency directories
+node_modules/
+
+# Environment variables
+.env
+
+# Build files
+dist/
+build/
+
+#VS CODE
+.vscode
+
+# Debug logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Lokale JSON data (valgfrit - hvis du vil have din data med i git, så fjern denne)
+# server/data/*.json

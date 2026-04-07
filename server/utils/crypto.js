@@ -1,0 +1,1 @@
+//Her kan krypteringen funktioner lægges ind.
