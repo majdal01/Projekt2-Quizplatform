@@ -12,12 +12,7 @@ const PORT = process.env.PORT || 3000;
 const isProduction = process.env.NODE_ENV === "production";
 const frontendOrigin = process.env.FRONTEND_ORIGIN || "http://localhost:5173";
 const rateLimit = require("express-rate-limit");
-const limiter = rateLimit({
-    windowMs: 15 * 60 * 1000,
-    max: 5,
-    message: "For mange forespørgsler, prøv igen senere."
-});
-app.use(limiter);
+
 
 if (!process.env.REDIS_URL) {
     console.error("REDIS_URL mangler i .env. Stopper server af sikkerhedshensyn.");
@@ -43,7 +38,9 @@ redisClient.on("error", (err) => {
 
 app.use(cors({
     origin: frontendOrigin,
-    credentials: true
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization']
 }));
 app.use(express.json());
 app.use(session({
