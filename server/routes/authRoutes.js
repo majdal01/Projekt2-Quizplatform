@@ -41,7 +41,7 @@ router.post("/register", registerLimiter, async (req,res)=>{
         const users = readUsers();
 
         //tjek for duplikat username
-        const existingUser = users.find(u => u.username === cleanUsername);
+        const existingUser = users.find(u => u.username?.trim().toLowerCase() === cleanUsername);
         if(existingUser){
             return res.status(409).json({ message: "Vælg et andet brugernavn" });
         }
@@ -83,7 +83,7 @@ router.post("/login", loginLimiter, async (req,res)=>{
         const users = readUsers();
 
         //find bruger
-        const user = users.find(u => u.username === cleanUsername);
+        const user = users.find(u => u.username?.trim().toLowerCase() === cleanUsername);
         if(!user){
             return res.status(401).json({ message: "Forkert brugernavn eller password" });
         }
@@ -111,7 +111,7 @@ router.post("/login", loginLimiter, async (req,res)=>{
         };
 
         return res.status(200).json({
-            message: "Login successful",
+            message: "Login gennemført",
             user: {
                 username: user.username,
                 role: user.role
@@ -141,7 +141,7 @@ router.post("/logout", (req, res) => {
             secure: process.env.NODE_ENV === "production",
             path: "/"
         });
-        res.status(200).json({ message: "Logout successful" });
+        res.status(200).json({ message: "Logout gennemført" });
     });
 });
 

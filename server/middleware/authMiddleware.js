@@ -1,36 +1,42 @@
-function requireUser(req,res,next){
+const { readUsers } = require("../utils/fileHandler.js");
 
-    if(!req.session.user){
-        return 401
+function requireUser(req, res, next) {
+    try {
+        if (!req.session || !req.session.user || !req.session.user.username) {
+            return res.status(401).json({ message: "Ikke logget ind" });
+        }
+
+        const sessionUsername = String(req.session.user.username).trim().toLowerCase();
+        const users = readUsers();
+        const user = users.find((u) => u.username.trim().toLowerCase() === sessionUsername);
+
+        if (!user) {
+            return res.status(401).json({ message: "Bruger findes ikke længere" });
+        }
+
+        req.user = user;
+        next();
+
+    } catch (err) {
+        console.error("Fejl i requireUser:", err);
+        res.status(500).json({ message: "Serverfejl i auth middleware" });
     }
-
-    const users = readUsers()
-
-    const user = users.find(
-        u => u.username === req.session.user.username
-    )
-
-    if(!user){
-        return error
-    }
-
-    req.user = user
-
-    next()
 }
 
-function requireAdmin(req,res,next){
-
-    if(req.user.role !== "admin"){
-
-        return 403
+function requireAdmin(req, res, next) {
+    if (!req.user) {
+       return res.status(401).json({ message: "Ikke logget ind" });
     }
 
-    next()
+    if (!req.user.role || req.user.role !== "admin") {
+        return res.status(403).json({ message: "Ingen adgang" });
+    }
+
+    next();
 }
 
 
 module.exports = {
     requireUser,
     requireAdmin
-}
+};
