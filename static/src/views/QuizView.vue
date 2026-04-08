@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <h1>{{ quiz?.title || 'Quiz' }}</h1>
+    <h1>{{ quizTitle }}</h1>
 
     <p v-if="loading" class="loading">Henter spørgsmål...</p>
     <p v-if="error" class="error">{{ error }}</p>
@@ -79,9 +79,11 @@ export default {
   name: 'QuizView',
   data() {
     return {
-      quiz: null,
-      questions: [],
+      quizId: 'express',
+      quizTitle: 'Quiz',
+      currentQuestion: null,
       currentIndex: 0,
+      totalQuestions: 0,
       score: 0,
       loading: false,
       error: '',
@@ -93,39 +95,34 @@ export default {
     }
   },
   computed: {
-    currentQuestion() {
-      return this.questions[this.currentIndex] || null
-    },
-    totalQuestions() {
-      return this.questions.length
-    },
     progressWidth() {
       if (!this.totalQuestions) return '0%'
       return `${((this.currentIndex + 1) / this.totalQuestions) * 100}%`
     }
   },
   mounted() {
-    this.fetchQuiz()
+    this.startQuiz()
   },
   methods: {
-    async fetchQuiz() {
+    async startQuiz() {
       this.loading = true
       this.error = ''
 
       try {
-        const response = await fetch('http://localhost:3000/quizzes/express', {
+        const response = await fetch(`http://localhost:3000/quiz/${this.quizId}/start`, {
           headers: {
+            'Content-Type': 'application/json',
             Authorization: `Bearer ${appStore.token}`
           }
         })
 
         if (!response.ok) {
-          throw new Error('Kunne ikke hente quiz')
+          throw new Error('Kunne ikke starte quiz')
         }
 
         const data = await response.json()
-        this.quiz = data
-        this.questions = data.questions || []
+        this.currentQuestion = data.question
+        this.totalQuestions = data.totalQuestions
       } catch (error) {
         this.error = 'Kunne ikke hente spørgsmål'
       } finally {
@@ -133,64 +130,83 @@ export default {
       }
     },
 
-    normalizeText(value) {
-      return String(value).trim().toLowerCase()
-    },
-
-    arraysEqual(a, b) {
-      if (a.length !== b.length) return false
-      const sortedA = [...a].sort()
-      const sortedB = [...b].sort()
-      return sortedA.every((value, index) => value === sortedB[index])
-    },
-
-    submitAnswer() {
+    async submitAnswer() {
       this.feedback = ''
+      this.error = ''
 
-      if (!this.currentQuestion) return
-
-      let isCorrect = false
+      let answer = null
 
       if (this.currentQuestion.type === 'mc-single') {
-        isCorrect = this.currentQuestion.correctAnswers.includes(this.selectedSingle)
+        answer = this.selectedSingle
       }
 
       if (this.currentQuestion.type === 'mc-multi') {
-        isCorrect = this.arraysEqual(
-          this.selectedMultiple,
-          this.currentQuestion.correctAnswers
-        )
+        answer = this.selectedMultiple
       }
 
       if (this.currentQuestion.type === 'cloze-text') {
-        isCorrect = this.currentQuestion.correctAnswers.some(
-          answer => this.normalizeText(answer) === this.normalizeText(this.selectedText)
-        )
+        answer = this.selectedText
       }
 
-      if (isCorrect) {
-        this.score++
-        this.feedback = 'Korrekt svar'
-      } else {
-        this.feedback = 'Forkert svar'
-      }
+      try {
+        const response = await fetch(`http://localhost:3000/quiz/${this.quizId}/answer`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${appStore.token}`
+          },
+          body: JSON.stringify({ answer })
+        })
 
-      const isLastQuestion = this.currentIndex === this.totalQuestions - 1
-
-      if (isLastQuestion) {
-        appStore.lastResult = {
-          score: this.score,
-          totalQuestions: this.totalQuestions,
-          quizTitle: this.quiz?.title || 'Quiz'
+        if (!response.ok) {
+          throw new Error('Kunne ikke sende svar')
         }
-        this.finished = true
-        return
-      }
 
-      this.currentIndex++
-      this.selectedSingle = null
-      this.selectedMultiple = []
-      this.selectedText = ''
+        const data = await response.json()
+
+        if (data.isCorrect) {
+          this.score++
+          this.feedback = 'Korrekt svar'
+        } else {
+          this.feedback = 'Forkert svar'
+        }
+
+        const isLastQuestion = this.currentIndex === this.totalQuestions - 1
+
+        if (isLastQuestion) {
+          appStore.lastResult = {
+            score: this.score,
+            totalQuestions: this.totalQuestions,
+            quizTitle: this.quizTitle
+          }
+          this.finished = true
+          return
+        }
+
+        this.currentIndex++
+        this.selectedSingle = null
+        this.selectedMultiple = []
+        this.selectedText = ''
+
+        this.currentQuestion = null
+        this.feedback = ''
+
+        const nextResponse = await fetch(`http://localhost:3000/quiz/${this.quizId}/start`, {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${appStore.token}`
+          }
+        })
+
+        if (!nextResponse.ok) {
+          throw new Error('Kunne ikke hente næste spørgsmål')
+        }
+
+        const nextData = await nextResponse.json()
+        this.currentQuestion = nextData.question
+      } catch (error) {
+        this.error = 'Der skete en fejl ved svar'
+      }
     }
   }
 }
