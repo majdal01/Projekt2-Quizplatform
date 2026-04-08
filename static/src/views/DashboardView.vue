@@ -1,7 +1,12 @@
 <template>
-  <div>
-    <nav v-if="appStore.isLoggedIn()" class="top-nav">
-      <template v-if="appStore.isAdmin()">
+  <div class="container">
+    <h1>Dashboard</h1>
+
+    <p>Logget ind som: {{ appStore.user?.username }}</p>
+    <p>Rolle: {{ appStore.user?.role }}</p>
+
+    <div class="dashboard-actions">
+      <template v-if="appStore.user?.role === 'admin'">
         <button @click="$router.push('/admin')">Upload quiz</button>
         <button @click="$router.push('/admin')">Slet quiz</button>
         <button @click="$router.push('/admin')">Se log</button>
@@ -13,18 +18,16 @@
         <button @click="$router.push('/history')">Se mine resultater</button>
       </template>
 
-      <button class="logout-btn" @click="handleLogout">Log ud</button>
-    </nav>
-
-    <router-view />
+      <button class="secondary-btn" @click="handleLogout">Log ud</button>
+    </div>
   </div>
 </template>
 
 <script>
-import { appStore } from './stores/appStore'
+import { appStore } from '../stores/appStore'
 
 export default {
-  name: 'App',
+  name: 'DashboardView',
   data() {
     return {
       appStore
