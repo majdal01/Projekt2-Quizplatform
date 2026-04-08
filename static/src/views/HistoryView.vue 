@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <h1>Mine resultater</h1>
+    <h1>Se resultater</h1>
 
     <p v-if="loading" class="loading">Henter resultater...</p>
     <p v-if="error" class="error">{{ error }}</p>
@@ -8,23 +8,25 @@
     <table v-if="results.length">
       <thead>
         <tr>
-          <th>Dato</th>
+          <th>Bruger</th>
+          <th>Quiz</th>
+          <th>Start</th>
+          <th>Slut</th>
           <th>Score</th>
-          <th>Korrekte</th>
-          <th>Antal spørgsmål</th>
         </tr>
       </thead>
       <tbody>
         <tr v-for="item in results" :key="item.id">
-          <td>{{ item.date }}</td>
+          <td>{{ item.userId }}</td>
+          <td>{{ item.quizId }}</td>
+          <td>{{ formatDate(item.startTime) }}</td>
+          <td>{{ formatDate(item.endTime) }}</td>
           <td>{{ item.score }}</td>
-          <td>{{ item.correctAnswers }}</td>
-          <td>{{ item.totalQuestions }}</td>
         </tr>
       </tbody>
     </table>
 
-    <p v-else-if="!loading">Ingen tidligere resultater fundet.</p>
+    <p v-else-if="!loading">Ingen resultater fundet.</p>
 
     <button @click="$router.push('/dashboard')">Tilbage</button>
   </div>
@@ -46,12 +48,15 @@ export default {
     this.fetchResults()
   },
   methods: {
+    formatDate(dateString) {
+      return new Date(dateString).toLocaleString('da-DK')
+    },
     async fetchResults() {
       this.loading = true
       this.error = ''
 
       try {
-        const response = await fetch('/results', {
+        const response = await fetch('http://localhost:3000/results', {
           headers: {
             Authorization: `Bearer ${appStore.token}`
           }
@@ -62,7 +67,13 @@ export default {
         }
 
         const data = await response.json()
-        this.results = data
+
+        if (appStore.user?.role === 'admin') {
+          this.results = data
+        } else {
+          const currentUserId = appStore.user?.id || appStore.user?.username
+          this.results = data.filter(item => item.userId === currentUserId)
+        }
       } catch (error) {
         this.error = 'Fejl ved hentning af resultater'
       } finally {
@@ -72,3 +83,4 @@ export default {
   }
 }
 </script>
+
