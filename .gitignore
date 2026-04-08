@@ -3,6 +3,10 @@ node_modules/
 
 # Environment variables
 .env
+server/.env
+server/.env.local
+server/.env.*.local
+!server/.env.example
 
 # Build files
 dist/

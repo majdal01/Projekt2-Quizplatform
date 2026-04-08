@@ -1,29 +1,79 @@
+const authRoutes = require('./routes/authRoutes');
+const adminRoutes = require('./routes/adminRoutes');
 const express = require('express');
 const cors = require('cors');
-const fs = require("fs");
-const path = require("path");
+const session = require('express-session');
 require('dotenv').config();
-
-
-
+const { createClient } = require("redis");
+const { RedisStore } = require("connect-redis");
 const app = express();
 const PORT = process.env.PORT || 3000;
-
-app.use(cors()); 
-app.use(express.json())
-
-app.get("/quiz", (req, res) => {
-    const data = fs.readFileSync(path.join(__dirname,"quizzes", "express.json"), "utf-8");
-    const quiz = JSON.parse(data);
-
-    res.json(quiz);
+const isProduction = process.env.NODE_ENV === "production";
+const frontendOrigin = process.env.FRONTEND_ORIGIN || "http://localhost:5173";
+const rateLimit = require("express-rate-limit");
+const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 5,
+    message: "For mange forespørgsler, prøv igen senere."
 });
-//ROUTES
-const adminRoutes = require('./routes/adminRoutes');
+app.use(limiter);
 
-//CONNECTION TIL ROUTES
-app.use('/admin', adminRoutes);
+if (!process.env.REDIS_URL) {
+    console.error("REDIS_URL mangler i .env. Stopper server af sikkerhedshensyn.");
+    process.exit(1);
+}
 
-app.listen(PORT, () => {
-    console.log(`Serveren kører på http://localhost:${PORT}`);
+if (!process.env.SESSION_SECRET) {
+    console.error("SESSION_SECRET mangler i .env. Stopper server af sikkerhedshensyn.");
+    process.exit(1);
+}
+
+if (isProduction) {
+    app.set("trust proxy", 1);
+}
+
+const redisClient = createClient({
+    url: process.env.REDIS_URL
 });
+
+redisClient.on("error", (err) => {
+    console.error("Redis fejl:", err);
+});
+
+app.use(cors({
+    origin: frontendOrigin,
+    credentials: true
+}));
+app.use(express.json());
+app.use(session({
+    name: "quiz.sid",
+    store: new RedisStore({
+        client: redisClient,
+        prefix: "quiz:sess:"
+    }),
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+        httpOnly: true,
+        sameSite: "lax",
+        secure: isProduction,
+        maxAge: 1000 * 60 * 60 * 24
+    }
+}));
+app.use("/auth", authRoutes);
+app.use("/admin", adminRoutes);
+
+async function startServer() {
+    try {
+        await redisClient.connect();
+        app.listen(PORT, () => {
+            console.log("Serveren kører på http://localhost:" + PORT);
+        });
+    } catch (err) {
+        console.error("Kunne ikke forbinde til Redis. Stopper server.", err);
+        process.exit(1);
+    }
+}
+
+startServer();
