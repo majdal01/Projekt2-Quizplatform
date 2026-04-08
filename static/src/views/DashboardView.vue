@@ -7,9 +7,9 @@
 
     <div class="dashboard-actions">
       <template v-if="appStore.user?.role === 'admin'">
-        <button @click="$router.push('/admin')">Upload quiz</button>
-        <button @click="$router.push('/admin')">Slet quiz</button>
-        <button @click="$router.push('/admin')">Se log</button>
+        <button @click="$router.push('/quiz')">Upload quiz</button>
+        <button @click="$router.push('/quiz')">Slet quiz</button>
+        <button @click="$router.push('/history')">Se log</button>
         <button @click="$router.push('/quiz')">Tag quiz</button>
       </template>
 
@@ -41,3 +41,4 @@ export default {
   }
 }
 </script>
+
