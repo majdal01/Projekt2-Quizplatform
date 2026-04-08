@@ -1,5 +1,6 @@
 const authRoutes = require('./routes/authRoutes');
 const adminRoutes = require('./routes/adminRoutes');
+const quizRoutes = require('./routes/quizRoutes');
 const express = require('express');
 const cors = require('cors');
 const session = require('express-session');
@@ -63,6 +64,7 @@ app.use(session({
 }));
 app.use("/auth", authRoutes);
 app.use("/admin", adminRoutes);
+app.use("/quiz", quizRoutes);
 
 async function startServer() {
     try {

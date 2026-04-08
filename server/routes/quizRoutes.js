@@ -1,18 +1,25 @@
+const express = require('express');
+const router = express.Router();
+
+const fileHandler = require('../utils/fileHandler'); 
+
 let activeQuizzes = {};
 
-function getQuiz() {
-    const data = fs.readFileSync(
-        path.join(__dirname, "quizzes", "express.json"),
-        "utf-8"
-    );
-
-    return JSON.parse(data);
+function getQuizzes() {
+     const data = fileHandler.getData('quizzes');
+     return typeof data === 'string' ? JSON.parse(data) : data;
 }
 
-app.get("/quiz/:id/start", (req, res) => {
-    const quizId = req.params.id;
 
-    const quiz = getQuiz();
+
+router.get("/:id/start", (req, res) => {
+    const quizId = req.params.id;
+    const allQuizzes = getQuizzes();
+    
+    const quiz = allQuizzes.find(q => q.id === quizId || q.id === Number(quizId));
+    if (!quiz) {
+        return res.status(404).json({ error: "Quizzen blev ikke fundet i databasen" });
+    }
 
     //spørgsmålene blandes
 
@@ -33,7 +40,7 @@ app.get("/quiz/:id/start", (req, res) => {
     });
 });
 
-app.post("/quiz/:id/answer", (req, res) => {
+router.post("/:id/answer", (req, res) => {
     const quizId = req.params.id;
     const userAnswer = req.body.answer;
 
@@ -89,3 +96,5 @@ app.post("/quiz/:id/answer", (req, res) => {
 
     quizState.currentIndex++;
 });
+
+module.exports = router;
