@@ -93,7 +93,6 @@ export default {
         
         if (response.ok) {
           this.quizzes = await response.json();
-          console.log(this.quizzes);
           
         } else {
           console.error("Kunne ikke hente quizzer");
@@ -164,10 +163,18 @@ export default {
       }
     },
 
-    handleLogout() {
-      appStore.logout()
-      this.$router.push('/login')
-    },
+async handleLogout() {
+  try {
+    await fetch('http://localhost:3000/auth/logout', {
+      method: 'POST', 
+      credentials: 'include' 
+    });
+  } catch (error) {
+    console.error("Fejl under backend logout:", error);
+  }
+  appStore.logout()
+  this.$router.push('/login')
+},
     
     goToResults() {
       if (this.appStore.user?.role === 'admin') {
