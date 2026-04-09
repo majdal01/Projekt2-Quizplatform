@@ -108,13 +108,6 @@ router.post("/:id/answer", requireUser, (req, res) => {
             : Number(userAnswer);
     }
 
-    console.log("CURRENT QUESTION:", currentQuestion);
-    console.log("USER ANSWER:", userAnswer);
-    console.log("INDEX:", quizState.currentIndex);
-    console.log("CORRECT ANSWERS:", currentQuestion.correctAnswers);
-    console.log("NORMALIZED ANSWER:", answer);
-    console.log("ACTIVE QUIZZES:", activeQuizzes);
-    console.log("QUIZ STATE:", quizState);
 
     let correctCount = 0;
     let wrongCount = 0;
