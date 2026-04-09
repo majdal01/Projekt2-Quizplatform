@@ -1,15 +1,12 @@
 export const appStore = {
-  token: '',
   user: null,
   lastResult: null,
 
-  login(token, user) {
-    this.token = token
+  login(user) {
     this.user = user
   },
 
   logout() {
-    this.token = ''
     this.user = null
     this.lastResult = null
   },
@@ -19,10 +16,12 @@ export const appStore = {
   },
 
   isLoggedIn() {
-    return !!this.token
+    return !!this.user
   },
 
   isAdmin() {
     return this.user && this.user.role === 'admin'
   }
 }
+
+

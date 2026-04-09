@@ -110,6 +110,7 @@ export default {
 
       try {
         const response = await fetch(`http://localhost:3000/quiz/${this.quizId}/start`, {
+          credentials: 'include',
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${appStore.token}`
@@ -150,6 +151,7 @@ export default {
 
       try {
         const response = await fetch(`http://localhost:3000/quiz/${this.quizId}/answer`, {
+          credentials: 'include',
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -192,6 +194,7 @@ export default {
         this.feedback = ''
 
         const nextResponse = await fetch(`http://localhost:3000/quiz/${this.quizId}/start`, {
+          credentials: 'include',
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${appStore.token}`

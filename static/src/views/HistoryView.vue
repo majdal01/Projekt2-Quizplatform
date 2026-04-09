@@ -56,7 +56,8 @@ export default {
       this.error = ''
 
       try {
-        const response = await fetch('http://localhost:3000/results', {
+        const response = await fetch('http://localhost:3000/admin/logs', {
+          credentials: 'include',
           headers: {
             Authorization: `Bearer ${appStore.token}`
           }

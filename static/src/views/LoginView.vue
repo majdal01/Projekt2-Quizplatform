@@ -29,13 +29,6 @@
       </button>
     </form>
 
-    <p class="auth-links">
-      Test-login bruger: <strong>test</strong> / <strong>1234</strong>
-    </p>
-    <p class="auth-links">
-      Test-login admin: <strong>admin</strong> / <strong>1234</strong>
-    </p>
-
     <button class="secondary-btn" @click="$router.push('/register')">
       Gå til registrering
     </button>
@@ -61,25 +54,27 @@ export default {
       this.error = ''
 
       try {
-        let fakeUser = null
+        const response = await fetch('http://localhost:3000/auth/login', {
+          method: 'POST',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            username: this.username,
+            password: this.password
+          })
+        })
 
-        if (this.username === 'admin' && this.password === '1234') {
-          fakeUser = {
-            username: 'admin',
-            role: 'admin'
-          }
-        } else if (this.username === 'test' && this.password === '1234') {
-          fakeUser = {
-            username: 'test',
-            role: 'user'
-          }
-        } else {
-          throw new Error('Forkert brugernavn eller adgangskode')
+        const data = await response.json()
+
+        if (!response.ok) {
+          throw new Error(data.message || 'Kunne ikke logge ind')
         }
 
-        const fakeToken = 'test-token-123'
+        appStore.user = data.user
+        appStore.isLoggedIn = true
 
-        appStore.login(fakeToken, fakeUser)
         this.$router.push('/dashboard')
       } catch (error) {
         this.error = error.message || 'Kunne ikke logge ind'
