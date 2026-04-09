@@ -8,7 +8,9 @@
   --primary: #2563eb;
   --primary-hover: #1d4ed8;
   --success: #15803d;
+  --success-hover: #166534;
   --danger: #dc2626;
+  --danger-hover: #b91c1c;
   --warning: #f59e0b;
   --warning-hover: #d97706;
   --info: #0ea5e9;
@@ -102,7 +104,6 @@ button {
   padding: 0.9rem 1.2rem;
   margin-top: 0.5rem;
   margin-right: 0.5rem;
-  background: var(--primary);
   color: white;
   font: inherit;
   font-weight: 700;
@@ -111,7 +112,6 @@ button {
 }
 
 button:hover {
-  background: var(--primary-hover);
   transform: translateY(-1px);
 }
 
@@ -154,14 +154,14 @@ button:disabled {
   background: var(--success);
 }
 .btn-success:hover {
-  background: #166534;
+  background: var(--success-hover);
 }
 
 .logout-btn {
-  background: #dc2626;
+  background: var(--danger);
 }
 .logout-btn:hover {
-  background: #b91c1c;
+  background: var(--danger-hover);
 }
 
 .menu {
@@ -286,7 +286,7 @@ tr:hover td {
   button {
     width: 100%;
     height: auto;
-    margin: 1em;
+    margin: 1em 0 0 0;
   }
 
   th,
@@ -308,6 +308,11 @@ tr:hover td {
   flex-wrap: wrap;
   gap: 0.75rem;
 }
+
+.top-nav button {
+  width: auto;
+}
+
 
 .top-nav button {
   width: auto;

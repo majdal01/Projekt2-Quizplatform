@@ -1,24 +1,52 @@
 <template>
   <div class="container">
-    <h1>Dashboard</h1>
+    <div class="dashboard-header">
+      <div>
+        <h1>Dashboard</h1>
+        <p>Logget ind som: {{ appStore.user?.username }}</p>
+        <p>Rolle: {{ appStore.user?.role }}</p>
+      </div>
 
-    <p>Logget ind som: {{ appStore.user?.username }}</p>
-    <p>Rolle: {{ appStore.user?.role }}</p>
+      <button
+        v-if="appStore.user?.role === 'admin'"
+        class="btn-primary"
+        @click="$router.push('/admin/upload')"
+      >
+        Upload quiz
+      </button>
+    </div>
+
+    <div class="card-grid">
+      <div class="card quiz-card">
+        <div>
+          <h3>Test din viden i Express</h3>
+          <p>Tag quizzen og test din viden om Express.</p>
+        </div>
+
+        <div class="quiz-card-actions">
+          <button class="btn-success" @click="$router.push('/quiz')">
+            Tag quiz
+          </button>
+
+          <button
+            v-if="appStore.user?.role === 'admin'"
+            class="btn-warning"
+            @click="$router.push('/admin/delete')"
+          >
+            Slet quiz
+          </button>
+        </div>
+      </div>
+    </div>
 
     <div class="dashboard-actions">
-      <template v-if="appStore.user?.role === 'admin'">
-        <button @click="$router.push('/admin/upload')">Upload quiz</button>
-        <button @click="$router.push('/admin/delete')">Slet quiz</button>
-        <button @click="$router.push('/history')">Se log</button>
-        <button @click="$router.push('/quiz')">Tag quiz</button>
-      </template>
+      <button class="btn-info" @click="$router.push('/history')">
+        {{ appStore.user?.role === 'admin' ? 'Se log' : 'Se mine resultater' }}
+      </button>
 
-      <template v-else>
-        <button @click="$router.push('/quiz')">Tag test</button>
-        <button @click="$router.push('/history')">Se mine resultater</button>
-      </template>
-
-      <button class="secondary-btn" @click="handleLogout">Log ud</button>
+      <button class="logout-btn" @click="handleLogout">
+        Log ud
+      </button>
     </div>
   </div>
 </template>
@@ -41,3 +69,4 @@ export default {
   }
 }
 </script>
+
