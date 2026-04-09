@@ -60,8 +60,7 @@ const routes = [
     path: '/admin/delete',
     name: 'admin-delete',
     component: AdminDeleteView,
-    meta: { requiresAuth: true, requiresAdmin: true }
-    component: ResultsView
+    meta: { requiresAuth: true, requiresAdmin: true },
   },
   {
     path: '/logs',
