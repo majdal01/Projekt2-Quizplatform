@@ -87,7 +87,7 @@ export default {
   name: 'QuizView',
   data() {
     return {
-      quizId: 'express',
+     quizId: this.$route.params.id,
       quizTitle: 'Quiz',
       currentQuestion: null,
       currentIndex: 0,
@@ -137,6 +137,7 @@ export default {
         const data = await response.json()
         this.currentQuestion = data.question
         this.totalQuestions = data.totalQuestions
+        if (data.quizTitle) this.quizTitle = data.quizTitle
       } catch (error) {
         this.error = 'Kunne ikke hente spørgsmål'
       } finally {

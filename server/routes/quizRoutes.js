@@ -19,10 +19,12 @@ router.get("/", requireUser, (req, res) => {
             return {
                 id: quiz.id,
                 title: quiz.title || quiz.name, 
-                questionCount: quiz.questions ? quiz.questions.length : 0
+                questionCount: quiz.questions ? quiz.questions.length : 0,
+                description: quiz?.description
             };
         });
         res.json(quizList);
+        
     } catch (error) {
         console.error("Fejl ved hentning af quizzer:", error);
         res.status(500).json({ error: "Kunne ikke hente listen af quizzer" });

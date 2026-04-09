@@ -3,7 +3,7 @@ const router = express.Router();
 const { requireUser, requireAdmin } = require("../middleware/authMiddleware.js");
 
 const fileHandler = require('../utils/fileHandler'); 
-const { sanitizeQuizData } = require('../utils/sanitizer');
+const { sanitizeQuizData, validateQuizData } = require('../utils/sanitizer');
 
 
 router.get('/logs', requireUser, requireAdmin, (req, res) => {
@@ -16,6 +16,10 @@ router.post('/upload', requireUser, requireAdmin, (req, res) => {
 
     try {
         const rawQuizData = req.body; 
+        const validationError = validateQuizData(rawQuizData);
+        if (validationError) {
+            return res.status(400).json({ error: validationError });
+        }
         const cleanQuizData = sanitizeQuizData(rawQuizData);
         const allQuizzes = fileHandler.getData('quizzes');
         const newQuiz = {
