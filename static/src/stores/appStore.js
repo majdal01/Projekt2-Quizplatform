@@ -23,4 +23,3 @@ export const appStore = {
     return this.user && this.user.role === 'admin'
   }
 }
-

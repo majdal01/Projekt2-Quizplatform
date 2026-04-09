@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const { requireUser } = require("../middleware/authMiddleware.js");
 
 const fileHandler = require('../utils/fileHandler'); 
 
@@ -12,7 +13,7 @@ function getQuizzes() {
 
 
 
-router.get("/:id/start", (req, res) => {
+router.get("/:id/start", requireUser, (req, res) => {
     const quizId = req.params.id;
     const allQuizzes = getQuizzes();
     
@@ -40,7 +41,7 @@ router.get("/:id/start", (req, res) => {
     });
 });
 
-router.post("/:id/answer", (req, res) => {
+router.post("/:id/answer", requireUser, (req, res) => {
     const quizId = req.params.id;
     const userAnswer = req.body.answer;
 
@@ -54,9 +55,10 @@ router.post("/:id/answer", (req, res) => {
 
     let isCorrect = false;
 
+
     const answer = Array.isArray(userAnswer)
         ? userAnswer.map(Number)
-        : userAnswer;
+        : Number(userAnswer);
 
     if (currentQuestion.type === "mc-single") {
         isCorrect = currentQuestion.correctAnswers.includes(Number(answer));
@@ -86,15 +88,30 @@ router.post("/:id/answer", (req, res) => {
     console.log("ACTIVE QUIZZES:", activeQuizzes);
     console.log("QUIZ STATE:", quizState);
 
+    if (isCorrect) {
+        quizState.score++;
+    }
 
-    res.json({
-        message: "STEP 4B OK",
-        currentQuestion,
-        userAnswer,
-        isCorrect
-    });
+    const isLastQuestion = quizState.currentIndex >= quizState.questions.length -1;
+
+    if (isLastQuestion) {
+        return res.json({
+            message: "Quiz færdig",
+            isCorrect,
+            score: quizState.score,
+            total: quizState.questions.length
+        });
+    }
 
     quizState.currentIndex++;
+
+    return res.json({
+        isCorrect,
+        score: quizState.score,
+        nextQuestion: quizState.questions[quizState.currentIndex],
+        currentIndex: quizState.currentIndex,
+        total: quizState.questions.length
+    });
 });
 
 module.exports = router;
