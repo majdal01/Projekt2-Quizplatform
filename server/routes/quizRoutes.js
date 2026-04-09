@@ -45,7 +45,29 @@ router.get("/:id/start", requireUser, (req, res) => {
     const shuffledQuestions = JSON.parse(JSON.stringify(quiz.questions))
     .sort(() => Math.random() - 0.5);
 
+    //svarene blandes
 
+shuffledQuestions.forEach(q => {
+    if (q.type === "mc-single" || q.type === "mc-multi") {
+
+        // 1. Kombinér options med deres originale index
+        let combined = q.options.map((option, index) => ({
+            text: option,
+            isCorrect: q.correctAnswers.includes(index)
+        }));
+
+        // 2. Shuffle
+        combined.sort(() => Math.random() - 0.5);
+
+        // 3. Opdater options
+        q.options = combined.map(item => item.text);
+
+        // 4. Opdater correctAnswers (nye indexer)
+        q.correctAnswers = combined
+            .map((item, index) => item.isCorrect ? index : null)
+            .filter(index => index !== null);
+    }
+});
 
     //gem state i server memory
 activeQuizzes[userId] = {
