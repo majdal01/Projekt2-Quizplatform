@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <h1>Registrering</h1>
+    <h1>Registrer bruger</h1>
 
     <p v-if="error" class="error">{{ error }}</p>
     <p v-if="success" class="success">{{ success }}</p>
@@ -25,13 +25,18 @@
         oninput="this.setCustomValidity('')"
       />
 
+      <p class="auth-note">
+        Password skal være mindst 8 tegn og indeholde mindst ét stort bogstav,
+        ét lille bogstav, ét tal og ét specialtegn.
+      </p>
+
       <button type="submit" :disabled="loading">
-        {{ loading ? 'Registrerer...' : 'Registrér' }}
+        {{ loading ? 'Opretter...' : 'Registrer' }}
       </button>
     </form>
 
     <button class="secondary-btn" @click="$router.push('/login')">
-      Tilbage til login
+      Gå til login
     </button>
   </div>
 </template>
@@ -54,6 +59,16 @@ export default {
       this.error = ''
       this.success = ''
 
+      const strongPasswordRegex =
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/
+
+      if (!strongPasswordRegex.test(this.password)) {
+        this.error =
+          'Password skal være mindst 8 tegn og indeholde stort bogstav, lille bogstav, tal og specialtegn'
+        this.loading = false
+        return
+      }
+
       try {
         const response = await fetch('http://localhost:3000/auth/register', {
           method: 'POST',
@@ -66,17 +81,21 @@ export default {
           })
         })
 
-        const data = await response.json().catch(() => null)
+        const data = await response.json()
 
         if (!response.ok) {
-          throw new Error(data?.message || 'Registrering fejlede')
+          throw new Error(data.message || 'Kunne ikke oprette bruger')
         }
 
-        this.success = 'Brugeren er oprettet. Du kan nu logge ind.'
+        this.success = 'Bruger oprettet. Du kan nu logge ind.'
         this.username = ''
         this.password = ''
+
+        setTimeout(() => {
+          this.$router.push('/login')
+        }, 1200)
       } catch (error) {
-        this.error = error.message || 'Kunne ikke registrere bruger'
+        this.error = error.message || 'Kunne ikke oprette bruger'
       } finally {
         this.loading = false
       }
@@ -84,3 +103,4 @@ export default {
   }
 }
 </script>
+
