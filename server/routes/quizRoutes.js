@@ -149,4 +149,34 @@ router.post("/:id/answer", requireUser, (req, res) => {
     });
 });
 
+router.get("/history", requireUser, (req, res) => {
+    try {
+        const userId = req.user.username; 
+        let logs = fileHandler.getData('logs');
+        if (!Array.isArray(logs)) logs = [];
+        
+        const allQuizzes = getQuizzes();
+
+        const userHistory = logs
+            .filter(log => log.userId === userId)
+            .map(log => {
+                const quiz = allQuizzes.find(q => String(q.id) === String(log.quizId));
+                return {
+                    id: log.id,
+                    quizId: log.quizId,
+                    quizTitle: quiz ? (quiz.title || quiz.name) : "Slettet / Ukendt quiz",
+                    score: log.score,
+                    startTime: log.startTime,
+                    endTime: log.endTime
+                };
+            });
+        userHistory.sort((a, b) => new Date(b.endTime) - new Date(a.endTime));
+
+        res.json(userHistory);
+    } catch (error) {
+        console.error("Fejl ved hentning af historik:", error);
+        res.status(500).json({ error: "Kunne ikke hente historik" });
+    }
+});
+
 module.exports = router;

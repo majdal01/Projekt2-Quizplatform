@@ -40,9 +40,9 @@
     </div>
 
     <div class="dashboard-actions">
-      <button class="btn-info" @click="$router.push('/history')">
-        {{ appStore.user?.role === 'admin' ? 'Se log' : 'Se mine resultater' }}
-      </button>
+     <button class="btn-info" @click="goToResults">
+  {{ appStore.user?.role === 'admin' ? 'Se log' : 'Se mine resultater' }}
+</button>
 
       <button class="logout-btn" @click="handleLogout">
         Log ud
@@ -65,7 +65,14 @@ export default {
     handleLogout() {
       appStore.logout()
       this.$router.push('/login')
+    },
+    goToResults() {
+    if (this.appStore.user?.role === 'admin') {
+      this.$router.push('/logs');
+    } else {
+      this.$router.push('/history');
     }
+  }
   }
 }
 </script>

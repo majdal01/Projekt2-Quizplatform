@@ -5,6 +5,7 @@ import DashboardView from '../views/DashboardView.vue'
 import QuizView from '../views/QuizView.vue'
 import HistoryView from '../views/HistoryView.vue'
 import ResultsView from '../views/ResultsView.vue'
+import LogView from '@/views/LogView.vue'
 
 const routes = [
   {
@@ -40,6 +41,11 @@ const routes = [
     path: '/results',
     name: 'results',
     component: ResultsView
+  },
+  {
+    path: '/logs',
+    name: 'logs',
+    component: LogView
   }
 ]
 
