@@ -11,7 +11,7 @@ router.get('/logs', (req, res) => {
     res.json(logs);
 });
 
-router.post('/quiz', (req, res) => {
+router.post('/upload', (req, res) => {
     //MANGLER AUTH
     try {
         const rawQuizData = req.body; 
@@ -33,7 +33,7 @@ router.post('/quiz', (req, res) => {
     }
 });
 
-router.delete('/quiz/:id', (req, res) => {
+router.delete('/delete/:id', (req, res) => {
     //MANGLER AUTH
     try {
         const quizId = req.params.id;
