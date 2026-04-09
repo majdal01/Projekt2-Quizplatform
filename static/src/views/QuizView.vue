@@ -2,6 +2,16 @@
   <div class="container">
     <h1>{{ quizTitle }}</h1>
 
+     <p class="info">
+    Point gives for korrekte svar. Ved spørgsmål med flere rigtige svar kan du få delvise point, og hvis du vælger forkerte svar, kan du også få minuspoint.
+  </p>
+
+    <br>
+
+     <p class="info">
+    Quizzen kan indeholde multiple choice med ét rigtigt svar, multiple choice med flere rigtige svar og korte tekstsvar. Du får point for korrekte svar, og ved spørgsmål med flere rigtige svar kan du få delvise point eller minuspoint, hvis du vælger forkerte svar.
+  </p>
+
     <p v-if="loading" class="loading">Henter spørgsmål...</p>
     <p v-if="error" class="error">{{ error }}</p>
 
