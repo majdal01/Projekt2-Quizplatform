@@ -45,19 +45,23 @@ router.get("/:id/start", requireUser, (req, res) => {
     const shuffledQuestions = JSON.parse(JSON.stringify(quiz.questions))
     .sort(() => Math.random() - 0.5);
 
+
+
     //gem state i server memory
 activeQuizzes[userId] = {
         quizId: quizId,
         questions: shuffledQuestions,
         currentIndex: 0,
         score: 0,
+        maxScore: quiz.questions.length,
         startTime: new Date().toISOString() 
     };
 
     res.json({
         quizId: quizId,
         question: shuffledQuestions[0],
-        totalQuestions: shuffledQuestions.length
+        totalQuestions: shuffledQuestions.length,
+        maxScore: quiz.questions.length
     });
 });
 
@@ -73,9 +77,14 @@ router.post("/:id/answer", requireUser, (req, res) => {
 
     const currentQuestion = quizState.questions[quizState.currentIndex];
 
-    const answer = Array.isArray(userAnswer)
-        ? userAnswer.map(Number)
-        : Number(userAnswer);
+   let answer;
+    if (currentQuestion.type === "cloze-text") {
+        answer = userAnswer; 
+    } else {
+        answer = Array.isArray(userAnswer)
+            ? userAnswer.map(Number)
+            : Number(userAnswer);
+    }
 
     console.log("CURRENT QUESTION:", currentQuestion);
     console.log("USER ANSWER:", userAnswer);
@@ -115,7 +124,7 @@ router.post("/:id/answer", requireUser, (req, res) => {
 
     //Cloze-text
 
-    if (currentQuestion.type === "cloze-text") {
+  if (currentQuestion.type === "cloze-text") {
         const normalized = String(answer).trim().toLowerCase();
         const correct = currentQuestion.correctAnswers
         .map(a => a.trim().toLowerCase());
@@ -126,13 +135,21 @@ router.post("/:id/answer", requireUser, (req, res) => {
             wrongCount = 1;
         }
     }
+    const isCorrect = correctCount > 0 && wrongCount === 0;
+  let deltaScore = 0;
+    if (currentQuestion.type === "mc-multi") {
+        // For multi-choice: Giv point proportionalt (f.eks. 0.5 per rigtige valg)
+        // Begrænser det så det aldrig giver over 1 point pr. spørgsmål
+        deltaScore = (correctCount * 0.5) - (wrongCount * 0.5);
+        if (deltaScore > 1) deltaScore = 1; 
+    } else {
+        // For single og cloze: 1 point for rigtigt, 0 for forkert
+        deltaScore = isCorrect ? 1 : 0;
+    }
 
-    const deltaScore =
-    (correctCount * 0.5) - (wrongCount * 0.5);
+    if (deltaScore < 0) deltaScore = 0; // Ingen negative point
 
     quizState.score += deltaScore;
-    quizState.score = Math.round(quizState.score * 10) / 10;
-
 
 
     const isLastQuestion = quizState.currentIndex === quizState.questions.length -1;
@@ -158,7 +175,9 @@ router.post("/:id/answer", requireUser, (req, res) => {
         return res.json({
             message: "Quiz færdig",
             score: quizState.score,
-            total: quizState.questions.length
+            total: quizState.questions.length,
+            isCorrect: isCorrect,
+            correctAnswers: currentQuestion.correctAnswers
         });
     }
 
@@ -169,7 +188,9 @@ router.post("/:id/answer", requireUser, (req, res) => {
         score: quizState.score,
         nextQuestion: quizState.questions[quizState.currentIndex],
         currentIndex: quizState.currentIndex,
-        total: quizState.questions.length
+        total: quizState.questions.length,
+        isCorrect: isCorrect,
+        correctAnswers: currentQuestion.correctAnswers
     });
 });
 
