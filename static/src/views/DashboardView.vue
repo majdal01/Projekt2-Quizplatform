@@ -7,18 +7,16 @@
 
     <div class="dashboard-actions">
       <template v-if="appStore.user?.role === 'admin'">
-        <button @click="$router.push('/admin/upload')">Upload quiz</button>
-        <button @click="$router.push('/admin/delete')">Slet quiz</button>
-        <button @click="$router.push('/history')">Se log</button>
-        <button @click="$router.push('/quiz')">Tag quiz</button>
+        <button class="btn-info" @click="$router.push('/history')">Se log</button>
+        <button class="btn-success" @click="$router.push('/quiz')">Tag quiz</button>      
       </template>
 
       <template v-else>
-        <button @click="$router.push('/quiz')">Tag test</button>
-        <button @click="$router.push('/history')">Se mine resultater</button>
+        <button class="btn-primary" @click="$router.push('/quiz')">Tag test</button>
+        <button class="btn-info" @click="$router.push('/history')">Se mine resultater</button>
       </template>
 
-      <button class="secondary-btn" @click="handleLogout">Log ud</button>
+      <button class="logout-btn" @click="handleLogout">Log ud</button>
     </div>
   </div>
 </template>
