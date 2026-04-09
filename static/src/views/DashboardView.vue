@@ -41,7 +41,7 @@
 
     <div class="dashboard-actions">
       <button class="btn-info" @click="$router.push('/history')">
-        {{ appStore.user?.role === 'admin' ? 'Se log' : 'Se mine resultater' }}
+        {{ appStore.user?.role === 'admin' ? 'Se log' : 'Mine Resultater' }}
       </button>
 
       <button class="logout-btn" @click="handleLogout">
