@@ -12,6 +12,7 @@
           <th>Quiz</th>
           <th>Start</th>
           <th>Slut</th>
+          <th>Total tid</th>
           <th>Score</th>
         </tr>
       </thead>
@@ -21,6 +22,7 @@
           <td>{{ item.quizId }}</td>
           <td>{{ formatDate(item.startTime) }}</td>
           <td>{{ formatDate(item.endTime) }}</td>
+          <td>{{ calculateDuration(item.startTime, item.endTime) }}</td>
           <td>{{ item.score }}</td>
         </tr>
       </tbody>
@@ -50,6 +52,20 @@ export default {
   methods: {
     formatDate(dateString) {
       return new Date(dateString).toLocaleString('da-DK')
+    },
+    calculateDuration(start, end) {
+    if (!start || !end) return '-'
+    const startTime = new Date(start)
+    const endTime = new Date(end)
+    // Forskellen i millisekunder
+    const diffMs = endTime - startTime
+    if (diffMs < 0) return 'Ugyldig tid'
+    // Omregn til minutter og sekunder
+    const totalSeconds = Math.floor(diffMs / 1000)
+    const minutes = Math.floor(totalSeconds / 60)
+    const seconds = totalSeconds % 60
+
+    return `${minutes}m ${seconds}s`
     },
     async fetchResults() {
       this.loading = true
