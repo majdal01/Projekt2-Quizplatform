@@ -26,7 +26,7 @@
 
     <p v-else-if="!loading">Ingen resultater fundet.</p>
 
-    <button @click="$router.push('/dashboard')">Tilbage</button>
+    <button class="btn-primary" @click="$router.push('/dashboard')">Tilbage</button>
   </div>
 </template>
 
