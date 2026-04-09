@@ -1,6 +1,14 @@
-[{
+[
+  {
     "username": "maja",
     "password": "HASH",
     "role": "user",
     "createdAt": "timestamp"
-}]
+  },
+  {
+    "username": "danielfreyr",
+    "password": "$2b$10$.msVoDZEoW3GF38Pqg5d2eSjUVbw9rTh/OdVayo/4azadHsPP7a82",
+    "role": "admin",
+    "createdAt": "2026-04-09T06:52:57.591Z"
+  }
+]

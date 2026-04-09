@@ -1,18 +1,19 @@
 const express = require('express');
 const router = express.Router();
+const { requireUser, requireAdmin } = require("../middleware/authMiddleware.js");
 
 const fileHandler = require('../utils/fileHandler'); 
 const { sanitizeQuizData } = require('../utils/sanitizer');
 
 
-router.get('/logs', (req, res) => {
-    // MANGLER AUTH CHECK
+router.get('/logs', requireUser, requireAdmin, (req, res) => {
+
     const logs = fileHandler.getData('logs');
     res.json(logs);
 });
 
-router.post('/upload', (req, res) => {
-    //MANGLER AUTH
+router.post('/upload', requireUser, requireAdmin, (req, res) => {
+
     try {
         const rawQuizData = req.body; 
         const cleanQuizData = sanitizeQuizData(rawQuizData);
@@ -33,8 +34,7 @@ router.post('/upload', (req, res) => {
     }
 });
 
-router.delete('/delete/:id', (req, res) => {
-    //MANGLER AUTH
+router.delete('/delete/:id', requireUser, requireAdmin, (req, res) => {
     try {
         const quizId = req.params.id;
         const allQuizzes = fileHandler.getData('quizzes');

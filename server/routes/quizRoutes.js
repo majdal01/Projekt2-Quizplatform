@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const { requireUser } = require("../middleware/authMiddleware.js");
 
 const fileHandler = require('../utils/fileHandler'); 
 
@@ -12,7 +13,7 @@ function getQuizzes() {
 
 
 
-router.get("/:id/start", (req, res) => {
+router.get("/:id/start", requireUser, (req, res) => {
     const quizId = req.params.id;
     const allQuizzes = getQuizzes();
     
@@ -40,7 +41,7 @@ router.get("/:id/start", (req, res) => {
     });
 });
 
-router.post("/:id/answer", (req, res) => {
+router.post("/:id/answer", requireUser, (req, res) => {
     const quizId = req.params.id;
     const userAnswer = req.body.answer;
 
