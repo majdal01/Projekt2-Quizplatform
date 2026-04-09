@@ -72,6 +72,7 @@ Bash
 npm run dev
 
 Applikationen vil typisk være tilgængelig på http://localhost:5173.
+
 📁 Projektstruktur & Teknologier
 
     Backend: Express.js med express-session og connect-redis til sessionshåndtering.
