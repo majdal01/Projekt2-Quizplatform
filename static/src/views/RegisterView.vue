@@ -30,12 +30,12 @@
         ét lille bogstav, ét tal og ét specialtegn.
       </p>
 
-      <button type="submit" :disabled="loading">
+      <button class="btn-primary" type="submit" :disabled="loading">
         {{ loading ? 'Opretter...' : 'Registrer' }}
       </button>
     </form>
 
-    <button class="secondary-btn" @click="$router.push('/login')">
+    <button class="btn-secondary" @click="$router.push('/login')">
       Gå til login
     </button>
   </div>
