@@ -49,7 +49,7 @@ activeQuizzes[userId] = {
         questions: shuffledQuestions,
         currentIndex: 0,
         score: 0,
-        startTime: new Date().toISOString() // LOG: Sæt starttidspunkt
+        startTime: new Date().toISOString() 
     };
 
     res.json({

@@ -7,8 +7,6 @@ import DashboardView from '../views/DashboardView.vue'
 import QuizView from '../views/QuizView.vue'
 import HistoryView from '../views/HistoryView.vue'
 import ResultsView from '../views/ResultsView.vue'
-import AdminUploadView from '../views/AdminUploadView.vue'
-import AdminDeleteView from '../views/AdminDeleteView.vue'
 import LogView from '@/views/LogView.vue'
 
 const routes = [
@@ -49,18 +47,6 @@ const routes = [
     name: 'results',
     component: ResultsView,
     meta: { requiresAuth: true }
-  },
-  {
-    path: '/admin/upload',
-    name: 'admin-upload',
-    component: AdminUploadView,
-    meta: { requiresAuth: true, requiresAdmin: true }
-  },
-  {
-    path: '/admin/delete',
-    name: 'admin-delete',
-    component: AdminDeleteView,
-    meta: { requiresAuth: true, requiresAdmin: true },
   },
   {
     path: '/logs',

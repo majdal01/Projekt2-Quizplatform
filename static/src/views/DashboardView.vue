@@ -40,7 +40,7 @@
     </div>
 
     <div class="dashboard-actions">
-      <button class="btn-info" @click="$router.push('/history')">
+      <button class="btn-info" @click="goToResults">
         {{ appStore.user?.role === 'admin' ? 'Se log' : 'Mine Resultater' }}
       </button>
 
