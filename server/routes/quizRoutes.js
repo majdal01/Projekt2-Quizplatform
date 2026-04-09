@@ -71,46 +71,69 @@ router.post("/:id/answer", requireUser, (req, res) => {
 
     const currentQuestion = quizState.questions[quizState.currentIndex];
 
-    let isCorrect = false;
-
-
     const answer = Array.isArray(userAnswer)
         ? userAnswer.map(Number)
         : Number(userAnswer);
 
-    if (currentQuestion.type === "mc-single") {
-        isCorrect = currentQuestion.correctAnswers.includes(Number(answer));
-    }
-
-    if (currentQuestion.type === "mc-multi") {
-        const correct = currentQuestion.correctAnswers;
-
-        isCorrect = 
-        Array.isArray(answer) &&
-        answer.length === correct.length &&
-        answer.every(a => correct.includes(a));
-    }
-
-    if (currentQuestion.type === "cloze-text") {
-        isCorrect = currentQuestion.correctAnswers
-            .map(a => a.trim().toLowerCase())
-            .includes(String(answer).trim().toLowerCase());
-    }
-
     console.log("CURRENT QUESTION:", currentQuestion);
     console.log("USER ANSWER:", userAnswer);
-    console.log("IS CORRECT:", isCorrect);
     console.log("INDEX:", quizState.currentIndex);
     console.log("CORRECT ANSWERS:", currentQuestion.correctAnswers);
     console.log("NORMALIZED ANSWER:", answer);
     console.log("ACTIVE QUIZZES:", activeQuizzes);
     console.log("QUIZ STATE:", quizState);
 
-    if (isCorrect) {
-        quizState.score++;
+    let correctCount = 0;
+    let wrongCount = 0;
+
+    //MC-single
+    if (currentQuestion.type === "mc-single") {
+        const selected = answer;
+
+        if (currentQuestion.correctAnswers.includes(selected)) {
+            correctCount = 1;
+        } else {
+            wrongCount = 1;
+        }
     }
 
-    const isLastQuestion = quizState.currentIndex >= quizState.questions.length -1;
+    //MC-multi
+
+    if (currentQuestion.type === "mc-multi") {
+        const correct = currentQuestion.correctAnswers;
+
+        answer.forEach(a => {
+            if (correct.includes(a)) {
+                correctCount++;
+            } else {
+                wrongCount++;
+            }
+        });
+    }
+
+    //Cloze-text
+
+    if (currentQuestion.type === "cloze-text") {
+        const normalized = String(answer).trim().toLowerCase();
+        const correct = currentQuestion.correctAnswers
+        .map(a => a.trim().toLowerCase());
+
+        if (correct.includes(normalized)) {
+            correctCount = 1;
+        } else {
+            wrongCount = 1;
+        }
+    }
+
+    const deltaScore =
+    (correctCount * 0.5) - (wrongCount * 0.5);
+
+    quizState.score += deltaScore;
+    quizState.score = Math.round(quizState.score * 10) / 10;
+
+
+
+    const isLastQuestion = quizState.currentIndex === quizState.questions.length -1;
 
     if (isLastQuestion) {
         const endTime = new Date().toISOString();
@@ -132,7 +155,6 @@ router.post("/:id/answer", requireUser, (req, res) => {
 
         return res.json({
             message: "Quiz færdig",
-            isCorrect,
             score: quizState.score,
             total: quizState.questions.length
         });
@@ -141,7 +163,7 @@ router.post("/:id/answer", requireUser, (req, res) => {
     quizState.currentIndex++;
 
     return res.json({
-        isCorrect,
+        deltaScore,
         score: quizState.score,
         nextQuestion: quizState.questions[quizState.currentIndex],
         currentIndex: quizState.currentIndex,
