@@ -1,8 +1,8 @@
 const bcryptjs = require('bcryptjs');
 
 function isStrongPassword(password){
-    // Mindst 8 tegn, mindst et stort bogstav, mindst et lille bogstav, mindst et tal og mindst et specialtegn
-    const strongPasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    // Mindst 8 tegn, mindst et stort bogstav, mindst et lille bogstav, mindst et tal og mindst et specialtegn (bredt sæt)
+    const strongPasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9])\S{8,}$/;
     return strongPasswordRegex.test(password);
 }
 

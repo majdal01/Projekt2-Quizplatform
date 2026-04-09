@@ -60,7 +60,7 @@ export default {
       this.success = ''
 
       const strongPasswordRegex =
-        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9])\S{8,}$/
 
       if (!strongPasswordRegex.test(this.password)) {
         this.error =
