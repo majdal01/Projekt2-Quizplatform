@@ -1,10 +1,14 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { appStore } from '../stores/appStore'
+
 import LoginView from '../views/LoginView.vue'
 import RegisterView from '../views/RegisterView.vue'
 import DashboardView from '../views/DashboardView.vue'
 import QuizView from '../views/QuizView.vue'
 import HistoryView from '../views/HistoryView.vue'
 import ResultsView from '../views/ResultsView.vue'
+import AdminUploadView from '../views/AdminUploadView.vue'
+import AdminDeleteView from '../views/AdminDeleteView.vue'
 
 const routes = [
   {
@@ -24,22 +28,38 @@ const routes = [
   {
     path: '/dashboard',
     name: 'dashboard',
-    component: DashboardView
+    component: DashboardView,
+    meta: { requiresAuth: true }
   },
   {
     path: '/quiz',
     name: 'quiz',
-    component: QuizView
+    component: QuizView,
+    meta: { requiresAuth: true }
   },
   {
     path: '/history',
     name: 'history',
-    component: HistoryView
+    component: HistoryView,
+    meta: { requiresAuth: true }
   },
   {
     path: '/results',
     name: 'results',
-    component: ResultsView
+    component: ResultsView,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/admin/upload',
+    name: 'admin-upload',
+    component: AdminUploadView,
+    meta: { requiresAuth: true, requiresAdmin: true }
+  },
+  {
+    path: '/admin/delete',
+    name: 'admin-delete',
+    component: AdminDeleteView,
+    meta: { requiresAuth: true, requiresAdmin: true }
   }
 ]
 
@@ -48,5 +68,22 @@ const router = createRouter({
   routes
 })
 
+router.beforeEach((to, from, next) => {
+  if (to.meta.requiresAuth && !appStore.isLoggedIn()) {
+    return next('/login')
+  }
+
+  if (to.meta.requiresAdmin && !appStore.isAdmin()) {
+    return next('/dashboard')
+  }
+
+  if ((to.path === '/login' || to.path === '/register') && appStore.isLoggedIn()) {
+    return next('/dashboard')
+  }
+
+  next()
+})
+
 export default router
+
 
