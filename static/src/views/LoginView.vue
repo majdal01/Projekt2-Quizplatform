@@ -24,14 +24,14 @@
         oninput="this.setCustomValidity('')"
       />
 
-      <button type="submit" :disabled="loading">
-        {{ loading ? 'Logger ind...' : 'Log ind' }}
-      </button>
+      <button class="btn-primary" type="submit" :disabled="loading">
+  {{ loading ? 'Logger ind...' : 'Log ind' }}
+    </button>
     </form>
 
-    <button class="secondary-btn" @click="$router.push('/register')">
-      Gå til registrering
-    </button>
+    <button class="btn-secondary" type="button" @click="$router.push('/register')">
+  Gå til registrering
+</button>
   </div>
 </template>
 
