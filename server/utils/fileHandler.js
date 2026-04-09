@@ -20,4 +20,12 @@ const saveData = (filename, data) => {
     fs.writeFileSync(filePath, stringifyData);
 };
 
-module.exports = { getData, saveData };
+function readUsers(){
+    return getData('users');
+}
+
+function saveUsers(users){
+    saveData('users', users);
+}
+
+module.exports = { getData, saveData, readUsers, saveUsers };
