@@ -30,6 +30,7 @@
             v-for="(option, index) in currentQuestion.options"
             :key="index"
             class="option"
+            :class="getOptionClass(index, 'mc-single')" 
           >
             <input
               v-model="selectedSingle"
@@ -44,10 +45,11 @@
         </template>
 
         <template v-else-if="currentQuestion.type === 'mc-multi'">
-          <label
+         <label
             v-for="(option, index) in currentQuestion.options"
             :key="index"
             class="option"
+            :class="getOptionClass(index, 'mc-multi')"
           >
             <input
               v-model="selectedMultiple"
@@ -84,7 +86,7 @@
 
     <div v-if="finished" class="card">
       <h2>Quiz færdig</h2>
-      <p>Din score: {{ score }} / {{ totalQuestions }}</p>
+      <p>Din score: {{ score }} / {{ maxScore }}</p>
       <button class="btn-info" @click="$router.push('/results')">Se resultat</button>
       <button class="btn-secondary" @click="$router.push('/dashboard')">Tilbage til dashboard</button>
     </div>
@@ -98,7 +100,7 @@ export default {
   name: 'QuizView',
   data() {
     return {
-      quizId: 'express',
+     quizId: this.$route.params.id,
       quizTitle: 'Quiz',
       currentQuestion: null,
       currentIndex: 0,
@@ -115,7 +117,10 @@ export default {
       isCorrect: false,
       isLastQuestion: false,
       pendingNextQuestion: null,
-      pendingIndex: 0
+      pendingIndex: 0,
+      isCorrect: false,
+      correctAnswers: [],
+      maxScore: 0,
     }
   },
   computed: {
@@ -147,6 +152,8 @@ export default {
         const data = await response.json()
         this.currentQuestion = data.question
         this.totalQuestions = data.totalQuestions
+        if (data.quizTitle) this.quizTitle = data.quizTitle
+        this.maxScore = data.maxScore
       } catch (error) {
         this.error = 'Kunne ikke hente spørgsmål'
       } finally {
@@ -189,7 +196,16 @@ export default {
 
         this.score = data.score
         this.isCorrect = data.isCorrect
-        this.feedback = data.isCorrect ? 'Korrekt svar!' : 'Desværre, det var forkert.'
+        this.correctAnswers = data.correctAnswers
+        if (data.isCorrect) {
+          this.feedback = 'Korrekt svar!'
+        } else {
+          let extraText = this.currentQuestion.type === 'cloze-text' ? ` (Korrekt: ${data.correctAnswers.join(' / ')})` : ''
+          this.feedback = 'Desværre, det var forkert.' + extraText
+        }
+
+
+        
         this.hasAnswered = true
 
         if (data.message === 'Quiz færdig' || data.finished) {
@@ -208,6 +224,7 @@ export default {
       if (this.isLastQuestion) {
         appStore.lastResult = {
           score: this.score,
+          maxScore: this.maxScore,
           totalQuestions: this.totalQuestions,
           quizTitle: this.quizTitle,
           correctAnswers: this.score
@@ -221,7 +238,25 @@ export default {
         this.selectedSingle = null
         this.selectedMultiple = []
         this.selectedText = ''
+        this.correctAnswers = []
       }
+    },
+  getOptionClass(index, type) {
+      if (!this.hasAnswered) return '';
+
+      const isCorrectOption = this.correctAnswers.includes(index);
+      let isSelected = false;
+
+      if (type === 'mc-single') {
+        isSelected = this.selectedSingle === index;
+      } else if (type === 'mc-multi') {
+        isSelected = this.selectedMultiple.includes(index);
+      }
+
+      if (isCorrectOption) return 'correct-option'; // Grøn
+      if (isSelected && !isCorrectOption) return 'wrong-option'; // Rød
+
+      return '';
     }
   }
 }
