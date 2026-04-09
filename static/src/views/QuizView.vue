@@ -2,6 +2,16 @@
   <div class="container">
     <h1>{{ quizTitle }}</h1>
 
+     <p class="info">
+    Point gives for korrekte svar. Ved spørgsmål med flere rigtige svar kan du få delvise point, og hvis du vælger forkerte svar, kan du også få minuspoint.
+  </p>
+
+    <br>
+
+     <p class="info">
+    Quizzen kan indeholde multiple choice med ét rigtigt svar, multiple choice med flere rigtige svar og korte tekstsvar. Du får point for korrekte svar, og ved spørgsmål med flere rigtige svar kan du få delvise point eller minuspoint, hvis du vælger forkerte svar.
+  </p>
+
     <p v-if="loading" class="loading">Henter spørgsmål...</p>
     <p v-if="error" class="error">{{ error }}</p>
 
@@ -10,10 +20,11 @@
         <div class="progress" :style="{ width: progressWidth }"></div>
       </div>
 
+      <p><strong>Aktuel score:</strong> {{ score }} / {{ totalQuestions }}</p>
       <p><strong>Spørgsmål {{ currentIndex + 1 }} / {{ totalQuestions }}</strong></p>
       <p>{{ currentQuestion.question }}</p>
 
-   <form @submit.prevent="submitAnswer">
+      <form @submit.prevent="submitAnswer">
         <template v-if="currentQuestion.type === 'mc-single'">
           <label
             v-for="(option, index) in currentQuestion.options"
@@ -60,14 +71,14 @@
           />
         </template>
 
-        <button type="submit" v-if="!hasAnswered">
+        <button class="btn-primary" type="submit" v-if="!hasAnswered">
           Svar
         </button>
       </form>
 
       <div v-if="hasAnswered" class="feedback-section">
         <p :class="isCorrect ? 'success' : 'error'">{{ feedback }}</p>
-        <button @click="goToNext">
+        <button class="btn-primary" @click="goToNext">
           {{ isLastQuestion ? 'Afslut quiz' : 'Gå til næste spørgsmål' }}
         </button>
       </div>
@@ -130,8 +141,7 @@ export default {
         const response = await fetch(`http://localhost:3000/quiz/${this.quizId}/start`, {
           credentials: 'include',
           headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${appStore.token}`
+            'Content-Type': 'application/json'
           }
         })
 
@@ -151,26 +161,36 @@ export default {
       }
     },
 
-async submitAnswer() {
+    async submitAnswer() {
       this.error = ''
 
       let answer = null
-      if (this.currentQuestion.type === 'mc-single') answer = this.selectedSingle
-      if (this.currentQuestion.type === 'mc-multi') answer = this.selectedMultiple
-      if (this.currentQuestion.type === 'cloze-text') answer = this.selectedText
+
+      if (this.currentQuestion.type === 'mc-single') {
+        answer = this.selectedSingle
+      }
+
+      if (this.currentQuestion.type === 'mc-multi') {
+        answer = this.selectedMultiple
+      }
+
+      if (this.currentQuestion.type === 'cloze-text') {
+        answer = this.selectedText
+      }
 
       try {
         const response = await fetch(`http://localhost:3000/quiz/${this.quizId}/answer`, {
-          credentials: 'include',
           method: 'POST',
+          credentials: 'include',
           headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${appStore.token}`
+            'Content-Type': 'application/json'
           },
           body: JSON.stringify({ answer })
         })
 
-        if (!response.ok) throw new Error('Kunne ikke sende svar')
+        if (!response.ok) {
+          throw new Error('Kunne ikke sende svar')
+        }
 
         const data = await response.json()
 
@@ -188,25 +208,26 @@ async submitAnswer() {
         
         this.hasAnswered = true
 
-        if (data.message === "Quiz færdig") {
+        if (data.message === 'Quiz færdig' || data.finished) {
           this.isLastQuestion = true
         } else {
           this.isLastQuestion = false
           this.pendingNextQuestion = data.nextQuestion
           this.pendingIndex = data.currentIndex
         }
-
       } catch (error) {
         this.error = 'Der skete en fejl ved svar'
       }
     },
+
     goToNext() {
       if (this.isLastQuestion) {
         appStore.lastResult = {
           score: this.score,
           maxScore: this.maxScore,
           totalQuestions: this.totalQuestions,
-          quizTitle: this.quizTitle
+          quizTitle: this.quizTitle,
+          correctAnswers: this.score
         }
         this.finished = true
       } else {
@@ -240,4 +261,3 @@ async submitAnswer() {
   }
 }
 </script>
-
