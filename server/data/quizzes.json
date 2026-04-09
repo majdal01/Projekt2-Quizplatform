@@ -1,1 +1,146 @@
-[]
+[
+  {
+    "id": "express",
+    "title": "Express Quiz",
+    "questions": [
+      {
+        "id": 1,
+        "type": "mc-single",
+        "question": "Hvad er Express i Node.js-sammenhæng?",
+        "options": [
+          "Et webframework til at bygge HTTP-servers",
+          "Et database-system til lagring af data",
+          "Et kommandolinje-værktøj til Git",
+          "Et styresystem til servere"
+        ],
+        "correctAnswers": [
+          0
+        ]
+      },
+      {
+        "id": 2,
+        "type": "mc-multi",
+        "question": "Hvilke af følgende kan bruges til at importere Express i et Node.js-projekt?",
+        "options": [
+          "import express from 'express'",
+          "require('express')",
+          "include('express')",
+          "load('express')"
+        ],
+        "correctAnswers": [
+          0,
+          1
+        ]
+      },
+      {
+        "id": 3,
+        "type": "cloze-text",
+        "question": "Hvad returnerer kaldet express()?",
+        "correctAnswers": [
+          "app",
+          "app object",
+          "application"
+        ]
+      },
+      {
+        "id": 4,
+        "type": "mc-single",
+        "question": "Hvilken metode på app-objektet bruger man til at definere en GET-route?",
+        "options": [
+          "app.route()",
+          "app.fetch()",
+          "app.get()",
+          "app.send()"
+        ],
+        "correctAnswers": [
+          2
+        ]
+      },
+      {
+        "id": 5,
+        "type": "mc-multi",
+        "question": "Hvad indeholder req-objektet i Express?",
+        "options": [
+          "Data om HTTP-requestet",
+          "Headers fra klienten",
+          "Serverens database",
+          "URL-parametre"
+        ],
+        "correctAnswers": [
+          0,
+          1,
+          3
+        ]
+      },
+      {
+        "id": 6,
+        "type": "mc-single",
+        "question": "Hvad står parameteren res for i en route-handlerfunktion i Express?",
+        "options": [
+          "Resource-objektet",
+          "Result-objektet",
+          "Response-objektet, som bruges til at sende svar tilbage til klienten",
+          "Request-objektet"
+        ],
+        "correctAnswers": [
+          2
+        ]
+      },
+      {
+        "id": 7,
+        "type": "cloze-text",
+        "question": "Hvilken metode bruger man til at starte en Express-server?",
+        "correctAnswers": [
+          "listen",
+          "app.listen"
+        ]
+      },
+      {
+        "id": 8,
+        "type": "mc-multi",
+        "question": "Hvad kan middleware bruges til i Express?",
+        "options": [
+          "Logging af requests",
+          "Parsing af JSON",
+          "Autentifikation",
+          "Installering af npm-pakker"
+        ],
+        "correctAnswers": [
+          0,
+          1,
+          2
+        ]
+      },
+      {
+        "id": 9,
+        "type": "mc-single",
+        "question": "Hvilken indbygget middleware bruger man til at parse JSON-body?",
+        "options": [
+          "express.urlencoded()",
+          "express.raw()",
+          "express.json()",
+          "express.static()"
+        ],
+        "correctAnswers": [
+          2
+        ]
+      },
+      {
+        "id": 10,
+        "type": "mc-multi",
+        "question": "Hvad kan der ske, hvis ingen routes matcher en request?",
+        "options": [
+          "Klienten får et 404-svar",
+          "Requesten bliver hængende uden svar",
+          "En fallback route kan håndtere requesten",
+          "Serveren stopper automatisk"
+        ],
+        "correctAnswers": [
+          0,
+          2
+        ]
+      }
+    ],
+    "createdAt": "2026-04-09T07:55:28.598Z"
+  }
+]
