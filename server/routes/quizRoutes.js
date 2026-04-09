@@ -54,9 +54,10 @@ router.post("/:id/answer", (req, res) => {
 
     let isCorrect = false;
 
+
     const answer = Array.isArray(userAnswer)
         ? userAnswer.map(Number)
-        : userAnswer;
+        : Number(userAnswer);
 
     if (currentQuestion.type === "mc-single") {
         isCorrect = currentQuestion.correctAnswers.includes(Number(answer));
@@ -86,15 +87,30 @@ router.post("/:id/answer", (req, res) => {
     console.log("ACTIVE QUIZZES:", activeQuizzes);
     console.log("QUIZ STATE:", quizState);
 
+    if (isCorrect) {
+        quizState.score++;
+    }
 
-    res.json({
-        message: "STEP 4B OK",
-        currentQuestion,
-        userAnswer,
-        isCorrect
-    });
+    const isLastQuestion = quizState.currentIndex >= quizState.questions.length -1;
+
+    if (isLastQuestion) {
+        return res.json({
+            message: "Quiz færdig",
+            isCorrect,
+            score: quizState.score,
+            total: quizState.questions.length
+        });
+    }
 
     quizState.currentIndex++;
+
+    return res.json({
+        isCorrect,
+        score: quizState.score,
+        nextQuestion: quizState.questions[quizState.currentIndex],
+        currentIndex: quizState.currentIndex,
+        total: quizState.questions.length
+    });
 });
 
 module.exports = router;
