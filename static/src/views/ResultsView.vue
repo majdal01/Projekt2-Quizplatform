@@ -11,7 +11,6 @@
     <p v-else class="error">Ingen resultater fundet.</p>
 
     <div class="menu">
-      <button class="btn-info" @click="$router.push('/history')">Se historik</button>
       <button class="btn-secondary" @click="$router.push('/dashboard')">Til dashboard</button>
     </div>
   </div>
