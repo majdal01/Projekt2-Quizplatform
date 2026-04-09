@@ -72,9 +72,7 @@ export default {
           throw new Error(data.message || 'Kunne ikke logge ind')
         }
 
-        appStore.user = data.user
-        appStore.isLoggedIn = true
-
+        appStore.login(data.user)
         this.$router.push('/dashboard')
       } catch (error) {
         this.error = error.message || 'Kunne ikke logge ind'
@@ -85,3 +83,4 @@ export default {
   }
 }
 </script>
+
