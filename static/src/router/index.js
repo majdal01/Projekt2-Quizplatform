@@ -9,6 +9,7 @@ import HistoryView from '../views/HistoryView.vue'
 import ResultsView from '../views/ResultsView.vue'
 import AdminUploadView from '../views/AdminUploadView.vue'
 import AdminDeleteView from '../views/AdminDeleteView.vue'
+import LogView from '@/views/LogView.vue'
 
 const routes = [
   {
@@ -60,6 +61,12 @@ const routes = [
     name: 'admin-delete',
     component: AdminDeleteView,
     meta: { requiresAuth: true, requiresAdmin: true }
+    component: ResultsView
+  },
+  {
+    path: '/logs',
+    name: 'logs',
+    component: LogView
   }
 ]
 

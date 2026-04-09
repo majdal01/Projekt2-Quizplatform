@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <h1>Min Historik</h1>
+    <h1>Log</h1>
 
     <p v-if="loading" class="loading">Henter resultater...</p>
     <p v-if="error" class="error">{{ error }}</p>
@@ -8,6 +8,7 @@
     <table v-if="results.length">
       <thead>
         <tr>
+          <th>Bruger</th>
           <th>Quiz</th>
           <th>Start</th>
           <th>Slut</th>
@@ -16,7 +17,8 @@
       </thead>
       <tbody>
         <tr v-for="item in results" :key="item.id">
-          <td>{{ item.quizTitle }}</td>
+          <td>{{ item.userId }}</td>
+          <td>{{ item.quizId }}</td>
           <td>{{ formatDate(item.startTime) }}</td>
           <td>{{ formatDate(item.endTime) }}</td>
           <td>{{ item.score }}</td>
@@ -34,7 +36,7 @@
 import { appStore } from '../stores/appStore'
 
 export default {
-  name: 'HistoryView',
+  name: 'LogView',
   data() {
     return {
       results: [],
@@ -47,7 +49,6 @@ export default {
   },
   methods: {
     formatDate(dateString) {
-      if (!dateString) return '-';
       return new Date(dateString).toLocaleString('da-DK')
     },
     async fetchResults() {
@@ -55,26 +56,27 @@ export default {
       this.error = ''
 
       try {
-        const response = await fetch('http://localhost:3000/quiz/history', {
-          credentials: 'include', 
+        const response = await fetch('http://localhost:3000/admin/logs', {
+          credentials: 'include',
           headers: {
             Authorization: `Bearer ${appStore.token}`
           }
         })
 
         if (!response.ok) {
-          if (response.status === 401) {
-             throw new Error('Du er ikke logget ind eller din session er udløbet');
-          }
-          throw new Error('Kunne ikke hente resultater');
+          throw new Error('Kunne ikke hente resultater')
         }
 
         const data = await response.json()
-        
-        this.results = data;
-        
+
+        if (appStore.user?.role === 'admin') {
+          this.results = data
+        } else {
+          const currentUserId = appStore.user?.id || appStore.user?.username
+          this.results = data.filter(item => item.userId === currentUserId)
+        }
       } catch (error) {
-        this.error = error.message || 'Fejl ved hentning af resultater'
+        this.error = 'Fejl ved hentning af resultater'
       } finally {
         this.loading = false
       }
@@ -82,3 +84,4 @@ export default {
   }
 }
 </script>
+

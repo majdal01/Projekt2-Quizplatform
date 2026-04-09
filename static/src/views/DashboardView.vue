@@ -65,7 +65,14 @@ export default {
     handleLogout() {
       appStore.logout()
       this.$router.push('/login')
+    },
+    goToResults() {
+    if (this.appStore.user?.role === 'admin') {
+      this.$router.push('/logs');
+    } else {
+      this.$router.push('/history');
     }
+  }
   }
 }
 </script>

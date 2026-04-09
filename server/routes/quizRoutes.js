@@ -11,12 +11,28 @@ function getQuizzes() {
      return typeof data === 'string' ? JSON.parse(data) : data;
 }
 
-
+//Alle Quiz endpoint
+router.get("/", requireUser, (req, res) => {
+    try {
+        const allQuizzes = getQuizzes();
+        const quizList = allQuizzes.map(quiz => {
+            return {
+                id: quiz.id,
+                title: quiz.title || quiz.name, 
+                questionCount: quiz.questions ? quiz.questions.length : 0
+            };
+        });
+        res.json(quizList);
+    } catch (error) {
+        console.error("Fejl ved hentning af quizzer:", error);
+        res.status(500).json({ error: "Kunne ikke hente listen af quizzer" });
+    }
+});
 
 router.get("/:id/start", requireUser, (req, res) => {
     const quizId = req.params.id;
+    const userId = req.user.username;
     const allQuizzes = getQuizzes();
-    
     const quiz = allQuizzes.find(q => q.id === quizId || q.id === Number(quizId));
     if (!quiz) {
         return res.status(404).json({ error: "Quizzen blev ikke fundet i databasen" });
@@ -28,10 +44,12 @@ router.get("/:id/start", requireUser, (req, res) => {
     .sort(() => Math.random() - 0.5);
 
     //gem state i server memory
-    activeQuizzes[quizId] = {
+activeQuizzes[userId] = {
+        quizId: quizId,
         questions: shuffledQuestions,
         currentIndex: 0,
-        score: 0
+        score: 0,
+        startTime: new Date().toISOString() // LOG: Sæt starttidspunkt
     };
 
     res.json({
@@ -42,10 +60,10 @@ router.get("/:id/start", requireUser, (req, res) => {
 });
 
 router.post("/:id/answer", requireUser, (req, res) => {
-    const quizId = req.params.id;
+    const userId = req.user.username;
     const userAnswer = req.body.answer;
 
-    const quizState = activeQuizzes[quizId];
+    const quizState = activeQuizzes[userId];
 
     if (!quizState) {
         return res.status(404).json({ error: "Quiz ikke fundet eller ikke startet" });
@@ -95,6 +113,23 @@ router.post("/:id/answer", requireUser, (req, res) => {
     const isLastQuestion = quizState.currentIndex >= quizState.questions.length -1;
 
     if (isLastQuestion) {
+        const endTime = new Date().toISOString();
+
+        const newLog = {
+            id: Date.now().toString(),
+            userId: userId,
+            quizId: quizState.quizId,
+            startTime: quizState.startTime,
+            endTime: endTime,
+            score: quizState.score
+        };
+
+        let logs = fileHandler.getData('logs');
+        if (!Array.isArray(logs)) logs = [];
+        logs.push(newLog);
+        fileHandler.saveData('logs', logs);
+        delete activeQuizzes[userId];
+
         return res.json({
             message: "Quiz færdig",
             isCorrect,
@@ -112,6 +147,36 @@ router.post("/:id/answer", requireUser, (req, res) => {
         currentIndex: quizState.currentIndex,
         total: quizState.questions.length
     });
+});
+
+router.get("/history", requireUser, (req, res) => {
+    try {
+        const userId = req.user.username; 
+        let logs = fileHandler.getData('logs');
+        if (!Array.isArray(logs)) logs = [];
+        
+        const allQuizzes = getQuizzes();
+
+        const userHistory = logs
+            .filter(log => log.userId === userId)
+            .map(log => {
+                const quiz = allQuizzes.find(q => String(q.id) === String(log.quizId));
+                return {
+                    id: log.id,
+                    quizId: log.quizId,
+                    quizTitle: quiz ? (quiz.title || quiz.name) : "Slettet / Ukendt quiz",
+                    score: log.score,
+                    startTime: log.startTime,
+                    endTime: log.endTime
+                };
+            });
+        userHistory.sort((a, b) => new Date(b.endTime) - new Date(a.endTime));
+
+        res.json(userHistory);
+    } catch (error) {
+        console.error("Fejl ved hentning af historik:", error);
+        res.status(500).json({ error: "Kunne ikke hente historik" });
+    }
 });
 
 module.exports = router;

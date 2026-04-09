@@ -13,7 +13,7 @@
       <p><strong>Spørgsmål {{ currentIndex + 1 }} / {{ totalQuestions }}</strong></p>
       <p>{{ currentQuestion.question }}</p>
 
-      <form @submit.prevent="submitAnswer">
+   <form @submit.prevent="submitAnswer">
         <template v-if="currentQuestion.type === 'mc-single'">
           <label
             v-for="(option, index) in currentQuestion.options"
@@ -25,6 +25,7 @@
               type="radio"
               :value="index"
               name="answer"
+              :disabled="hasAnswered"
               required
             />
             {{ option }}
@@ -41,6 +42,7 @@
               v-model="selectedMultiple"
               type="checkbox"
               :value="index"
+              :disabled="hasAnswered"
             />
             {{ option }}
           </label>
@@ -51,16 +53,22 @@
             v-model="selectedText"
             type="text"
             placeholder="Skriv dit svar"
+            :disabled="hasAnswered"
             required
           />
         </template>
 
-        <button type="submit">
-          {{ currentIndex === totalQuestions - 1 ? 'Afslut quiz' : 'Næste spørgsmål' }}
+        <button type="submit" v-if="!hasAnswered">
+          Svar
         </button>
       </form>
 
-      <p v-if="feedback" class="success">{{ feedback }}</p>
+      <div v-if="hasAnswered" class="feedback-section">
+        <p :class="isCorrect ? 'success' : 'error'">{{ feedback }}</p>
+        <button @click="goToNext">
+          {{ isLastQuestion ? 'Afslut quiz' : 'Gå til næste spørgsmål' }}
+        </button>
+      </div>
     </div>
 
     <div v-if="finished" class="card">
@@ -91,7 +99,12 @@ export default {
       finished: false,
       selectedSingle: null,
       selectedMultiple: [],
-      selectedText: ''
+      selectedText: '',
+      hasAnswered: false,
+      isCorrect: false,
+      isLastQuestion: false,
+      pendingNextQuestion: null,
+      pendingIndex: 0
     }
   },
   computed: {
@@ -110,6 +123,7 @@ export default {
 
       try {
         const response = await fetch(`http://localhost:3000/quiz/${this.quizId}/start`, {
+          credentials: 'include',
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${appStore.token}`
@@ -130,26 +144,17 @@ export default {
       }
     },
 
-    async submitAnswer() {
-      this.feedback = ''
+async submitAnswer() {
       this.error = ''
 
       let answer = null
-
-      if (this.currentQuestion.type === 'mc-single') {
-        answer = this.selectedSingle
-      }
-
-      if (this.currentQuestion.type === 'mc-multi') {
-        answer = this.selectedMultiple
-      }
-
-      if (this.currentQuestion.type === 'cloze-text') {
-        answer = this.selectedText
-      }
+      if (this.currentQuestion.type === 'mc-single') answer = this.selectedSingle
+      if (this.currentQuestion.type === 'mc-multi') answer = this.selectedMultiple
+      if (this.currentQuestion.type === 'cloze-text') answer = this.selectedText
 
       try {
         const response = await fetch(`http://localhost:3000/quiz/${this.quizId}/answer`, {
+          credentials: 'include',
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -158,54 +163,44 @@ export default {
           body: JSON.stringify({ answer })
         })
 
-        if (!response.ok) {
-          throw new Error('Kunne ikke sende svar')
-        }
+        if (!response.ok) throw new Error('Kunne ikke sende svar')
 
         const data = await response.json()
 
-        if (data.isCorrect) {
-          this.score++
-          this.feedback = 'Korrekt svar'
+        this.score = data.score
+        this.isCorrect = data.isCorrect
+        this.feedback = data.isCorrect ? 'Korrekt svar!' : 'Desværre,det var forkert.'
+        
+        this.hasAnswered = true
+
+        if (data.message === "Quiz færdig") {
+          this.isLastQuestion = true
         } else {
-          this.feedback = 'Forkert svar'
+          this.isLastQuestion = false
+          this.pendingNextQuestion = data.nextQuestion
+          this.pendingIndex = data.currentIndex
         }
 
-        const isLastQuestion = this.currentIndex === this.totalQuestions - 1
-
-        if (isLastQuestion) {
-          appStore.lastResult = {
-            score: this.score,
-            totalQuestions: this.totalQuestions,
-            quizTitle: this.quizTitle
-          }
-          this.finished = true
-          return
+      } catch (error) {
+        this.error = 'Der skete en fejl ved svar'
+      }
+    },
+    goToNext() {
+      if (this.isLastQuestion) {
+        appStore.lastResult = {
+          score: this.score,
+          totalQuestions: this.totalQuestions,
+          quizTitle: this.quizTitle
         }
-
-        this.currentIndex++
+        this.finished = true
+      } else {
+        this.currentIndex = this.pendingIndex
+        this.currentQuestion = this.pendingNextQuestion
+        this.hasAnswered = false
+        this.feedback = ''
         this.selectedSingle = null
         this.selectedMultiple = []
         this.selectedText = ''
-
-        this.currentQuestion = null
-        this.feedback = ''
-
-        const nextResponse = await fetch(`http://localhost:3000/quiz/${this.quizId}/start`, {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${appStore.token}`
-          }
-        })
-
-        if (!nextResponse.ok) {
-          throw new Error('Kunne ikke hente næste spørgsmål')
-        }
-
-        const nextData = await nextResponse.json()
-        this.currentQuestion = nextData.question
-      } catch (error) {
-        this.error = 'Der skete en fejl ved svar'
       }
     }
   }
